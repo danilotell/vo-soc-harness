@@ -1,0 +1,99 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mcp_server
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies (incl. dev group)
+        run: uv sync --group dev
+
+      - name: Lint (ruff)
+        run: uv run ruff check src tests
+
+      - name: Format (ruff)
+        run: uv run ruff format --check src tests
+
+      - name: Type-check (mypy)
+        run: uv run mypy src tests
+
+      - name: Test (pytest)
+        run: uv run pytest
+
+  harness:
+    # The OpenCode harness has no Python project of its own: its "code" is the
+    # JSON state the subagents hand to each other, checked against the templates.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.11"
+
+      # Pinned to the SAME ruff the `check` job gets from `mcp_server/uv.lock`.
+      # A bare `uvx ruff` resolves to the latest release, so a version enabling a
+      # new rule turns this job red with no change to the repository. Bump this
+      # together with the `ruff` entry in `mcp_server/uv.lock`.
+      - name: Lint (ruff)
+        run: uvx ruff@0.15.17 check scripts && uvx ruff@0.15.17 format --check scripts
+
+      # The interpreter is not chosen here: the root `uv.toml` pins uv to a managed
+      # Python and `.python-version` pins the version, so CI runs the same one a
+      # developer gets from `setup.sh`.
+      - name: Self-test the validator
+        run: uv run --no-project scripts/validate_alert_context.py --self-test
+
+      - name: Validate harness state against the reference templates
+        run: uv run --no-project scripts/validate_alert_context.py
+
+      # The report is evidence: it must render the same way every time, escape
+      # every value, and survive fields nobody declared. Jinja2 is fetched per
+      # invocation so the harness keeps no Python project of its own.
+      - name: Self-test the report renderer
+        run: uv run --with jinja2 --no-project scripts/render_report.py --self-test
+
+      - name: Check the report template renders
+        run: >
+          uv run --with jinja2 --no-project scripts/render_report.py
+          --check-template docs/reports/templates/soc_report.html
+
+      # The guard is loaded by OpenCode at runtime, so a mistake in it surfaces as
+      # a blocked tool in the middle of an alert. This drives its hooks directly.
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Probe the harness guard (plugin hooks)
+        run: node scripts/probe_harness_guard.mjs
+
+      # The same assertion the session preflight makes, minus the liveness half:
+      # CI has no OpenCode session, so only the guard's behaviour can be checked.
+      - name: Check the approval gate (behaviour)
+        run: uv run --no-project scripts/check_guard.py --probe-only
+
+      # The seeds ARE the declared shape of the runtime state files, and setup
+      # copies them verbatim — so a seed that fails its own contract would ship a
+      # broken state file to every new install.
+      - name: Check the state seeds against their own contracts
+        run: |
+          set -e
+          V="uv run --no-project scripts/validate_alert_context.py"
+          $V --check workbench     < docs/references/seed_workbench_list.json
+          $V --check alert_context < docs/references/seed_alert_context.json
+          $V --check history       < docs/references/seed_history.json

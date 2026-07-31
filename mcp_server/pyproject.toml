@@ -1,0 +1,63 @@
+[project]
+name = "custom-vo-mcp"
+version = "0.1.0"
+description = "Custom Vision One MCP Server"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastmcp>=3.4,<4",
+    "httpx[http2]>=0.27",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "python-dotenv>=1.0",
+]
+
+# No [build-system]: this is an application, not a packaged library, so uv only
+# manages the virtual environment + dependencies and does not try to install it.
+
+[tool.uv]
+package = false
+# The setup scripts install uv and assume NO Python on the machine, so the
+# interpreter must always be one uv provisioned — not whatever is on PATH, whose
+# version we do not control and which drifts from CI. uv reads the first config
+# it finds walking up from the working directory and does not merge them, so
+# these two settings live here as well as in the root `uv.toml`: this is the file
+# uv finds for `uv run --directory mcp_server ...`. The version is pinned once,
+# in `.python-version` at the repo root.
+python-preference = "only-managed"
+python-downloads = "automatic"
+
+# Dev-only tooling (installed with `uv sync --group dev`).
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.5",
+    "mypy>=1.10",
+]
+
+[tool.pytest.ini_options]
+# Source lives in src/ with flat imports, so put it on the path for tests.
+pythonpath = ["src"]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# Scaffolding with intentional placeholders; a copy gets linted once renamed out.
+"src/tools/_template/*" = ["F841"]
+
+[tool.mypy]
+python_version = "3.11"
+mypy_path = "src"
+warn_redundant_casts = true
+warn_unused_ignores = true
+# fastmcp / pydantic-settings don't always ship complete type stubs.
+ignore_missing_imports = true

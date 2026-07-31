@@ -1,0 +1,29 @@
+{
+  "responses": {
+    "authorization": {
+      "granted": true,
+      "operator_id": "...",
+      "granted_at": "2022-09-06T05:10:00Z",
+      "approved_actions": [
+        {
+          "action": "...",
+          "object": "...",
+          "reason": "..."
+        }
+      ]
+    },
+    "responses_status": "done",
+    "responses_date": "2022-09-06T05:11:45Z",
+    "responses_summary": {
+      "executed_responses": [
+        {
+            "action": "tool or action name",
+            "reason": "...",
+            "object": "HASH XYZ",
+            "result": "SUCCESS - RM XYZ"
+        }
+      ],
+      "summary": "..."
+    }
+  }
+}

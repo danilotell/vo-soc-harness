@@ -1,0 +1,106 @@
+{
+  "triage": {
+    "id": "WB-9002-20220906-00025",
+    "status": "Open",
+    "workbenchLink": "https://THE_WORKBENCH_URL",
+    "model": "Possible Credential Dumping via Registry",
+    "description": "A user obtained account logon information that can be used to access remote systems via Windows Registry.",
+    "score": 64,
+    "severity": "high",
+    "createdDateTime": "2022-09-06T02:49:33Z",
+    "incidentId": "IC-1-20230706-00001",
+    "impactScope": {
+      "desktopCount": 1,
+      "serverCount": 0,
+      "accountCount": 1,
+      "emailAddressCount": 1,
+      "containerCount": 1,
+      "cloudIdentityCount": 1,
+      "entities": [
+        {
+          "entityType": "account",
+          "entityValue": "EXAMPLE\\sam"
+        },
+        {
+          "entityType": "host",
+          "entityValue": {
+            "guid": "00000000-0000-0000-0000-000000000000",
+            "name": "HOST-01",
+            "ips": [
+              "10.0.0.10"
+            ]
+          }
+        },
+        {
+          "entityType": "emailAddress",
+          "entityValue": "sender@example.com"
+        },
+        {
+          "entityType": "container",
+          "entityValue": "k8s_example_default_00000000-0000-0000-0000-000000000000_0"
+        },
+        {
+          "entityType": "cloudIdentity",
+          "entityValue": "arn:aws:sts::000000000000:assumed-role/example-role/example-user"
+        }
+      ]
+    },
+    "indicators": [
+      {
+        "id": 1,
+        "type": "command_line",
+        "field": "objectCmd",
+        "value": "c:\\windows\\system32\\reg.exe save hklm\\security security.hive /y"
+      },
+      {
+        "id": 2,
+        "type": "command_line",
+        "field": "processCmd",
+        "value": "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe -nop -noni -w hidden -enc .......wasqbfafga"
+      },
+      {
+        "id": 3,
+        "type": "command_line",
+        "field": "parentCmd",
+        "value": "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe -nop -noni -w hidden -c $x=$((gp hkcu:software\\microsoft\\windows update).update); powershell -nop -noni -w hidden -enc $x"
+      },
+      {
+        "id": 4,
+        "type": "fullpath",
+        "field": "processFilePath",
+        "value": "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe"
+      },
+      {
+        "id": 5,
+        "type": "text",
+        "field": "endpointHostName",
+        "value": "HOST-01"
+      }
+    ],
+    "matchedRules": [
+      {
+        "id": "b23bc903-ecfb-4052-90a0-167adb93abb7",
+        "name": "Potential Credential Dumping via Registry",
+        "matchedFilters": [
+          {
+            "id": "f4b062e6-f363-4620-8473-eb929bc9f134",
+            "name": "Possible Credential Dumping via Registry Hive",
+            "matchedDateTime": "2022-09-05T03:38:48.000Z",
+            "mitreTechniqueIds": [
+              "V9.T1003.004",
+              "V9.T1003.002",
+              "T1003"
+            ]
+          }
+        ]
+      }
+    ],
+    "triage_status": "done",
+    "triage_date": "2022-09-06T03:59:13Z",
+    "triage_summary": {
+      "false_positive": false,
+      "true_positive": true,
+      "summary": "..."
+    }
+  }
+}

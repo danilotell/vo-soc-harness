@@ -1,0 +1,3 @@
+# Repo-root uv config: ignore system interpreters, fetch the version in `.python-version`.
+python-preference = "only-managed"
+python-downloads = "automatic"

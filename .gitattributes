@@ -1,0 +1,7 @@
+# Line endings are normalised in the repository so that a clone on any OS gets
+# the same bytes. Without this, a commit made with `core.autocrlf` disabled can
+# store CRLF in `setup.sh`, which then fails to run on Linux and macOS.
+* text=auto
+
+*.sh   text eol=lf
+*.ps1  text eol=crlf

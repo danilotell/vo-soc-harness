@@ -1,0 +1,40 @@
+{
+  "analysis": {
+    "analysis_status": "done",
+    "analysis_date": "2022-09-06T04:01:23Z",
+    "analysis_summary": {
+      "ioc_analysis": [
+        {
+          "ioc": "...",
+          "type": "...",
+          "verdict": "...",
+          "source": "...",
+          "detail": "..."
+        }
+      ],
+      "ttps_mitre_analysis": [
+        {
+          "technique_id": "...",
+          "technique": "...",
+          "tactic": "...",
+          "evidence": "..."
+        }
+      ],
+      "escalate": true,
+      "suggested_responses": [
+        {
+          "action": "...",
+          "object": "...",
+          "reason": "..."
+        }
+      ],
+      "extra_responses": [
+        {
+          "action": "...",
+          "reason": "..."
+        }
+      ],
+      "summary": "..."
+    }
+  }
+}

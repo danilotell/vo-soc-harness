@@ -1,0 +1,82 @@
+{
+    "$schema": "https://opencode.ai/config.json",
+    "default_agent": "SOC",
+    "watcher": {
+        "ignore": [
+            "node_modules/**",
+            "dist/**",
+            ".git/**",
+            "mcp_server/**/*"
+        ]
+    },
+    "permission": {
+        "custom-vision-one-mcp-server_*": "ask",
+        "custom-vision-one-mcp-server_get_server_capabilities": "allow",
+        "custom-vision-one-mcp-server_get_risk_index": "allow",
+        "custom-vision-one-mcp-server_get_alert_list": "allow",
+        "custom-vision-one-mcp-server_get_alert_details": "allow",
+        "custom-vision-one-mcp-server_get_endpoint_details": "allow",
+        "custom-vision-one-mcp-server_get_ioc_reputation": "allow",
+        "custom-vision-one-mcp-server_get_observed_attack_techniques": "allow",
+        "custom-vision-one-mcp-server_add_alert_note": "allow",
+        "custom-vision-one-mcp-server_modify_alert_status": "allow",
+        "custom-vision-one-mcp-server_send_slack_summary": "allow",
+        "custom-vision-one-mcp-server_isolate_endpoint": "ask",
+        "custom-vision-one-mcp-server_add_to_block_list": "ask",
+        "edit": {
+            "*": "allow",
+            "mcp_server/*": "deny",
+            "mcp_server/**": "deny",
+            "*/mcp_server/*": "deny",
+            ".env": "deny",
+            "*.env": "deny",
+            "*/.env": "deny",
+            "**/.env": "deny"
+        },
+        "read": {
+            "*": "allow",
+            ".env": "deny",
+            "*.env": "deny",
+            "*/.env": "deny",
+            "**/.env": "deny"
+        },
+        "bash": {
+            "*": "allow",
+            "*.env*": "ask",
+            "*mcp_server*": "ask"
+        }
+    },
+    "agent": {
+        "SOC": {
+            "color": "#BF2708",
+            "permission": {
+                "question": "allow",
+                "todowrite": "allow"
+            }
+        },
+        "build": {
+            "tools": {
+                "custom-vision-one-mcp-server_*": false
+            }
+        },
+        "plan": {
+            "tools": {
+                "custom-vision-one-mcp-server_*": false
+            }
+        }
+    },
+    "mcp": {
+        "custom-vision-one-mcp-server": {
+            "type": "local",
+            "command": [
+                "uv",
+                "run",
+                "--directory",
+                "mcp_server",
+                "python",
+                "src/custom_vo_mcp.py"
+            ],
+            "enabled": true
+        }
+    }
+}

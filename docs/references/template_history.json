@@ -1,0 +1,26 @@
+[
+  {
+    "alert_id": "WB-9002-20220906-00025",
+    "closed_date": "2022-09-06T06:00:00Z",
+    "status": "Closed",
+    "model": "Possible Credential Dumping via Registry",
+    "description": "A user obtained account logon information that can be used to access remote systems via Windows Registry.",
+    "score": 64,
+    "severity": "high",
+    "createdDateTime": "2022-09-06T02:49:33Z",
+    "incidentId": "IC-1-20230706-00001",
+    "classification": "true_positive",
+    "cve": "N/A",
+    "triage_date": "2022-09-06T03:59:13Z",
+    "analysis_date": "2022-09-06T04:01:23Z",
+    "tier3_execution_date": "2022-09-06T05:11:45Z",
+    "endpoints": null,
+    "payload": null,
+    "ttps": null,
+    "ioc_analysis": null,
+    "response_actions": null,
+    "pending_actions": null,
+    "workbenchLink": "https://THE_WORKBENCH_URL",
+    "report_file": "docs/reports/outputs/WB-9002-20220906-00025.html"
+  }
+]

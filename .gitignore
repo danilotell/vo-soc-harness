@@ -1,0 +1,95 @@
+# ---------------------------------------------------------------------------
+# soc-harness — monorepo .gitignore
+# ---------------------------------------------------------------------------
+
+# --- Secrets / environment -------------------------------------------------
+# Real credentials live in .env files; the *.example templates are tracked.
+.env
+.env.*
+!.env.example
+.envrc
+*.pem
+*.key
+
+# --- Python byte-code / packaging ------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+*.egg
+*.manifest
+*.spec
+
+# --- Virtual environments --------------------------------------------------
+.venv/
+venv/
+env/
+ENV/
+# Note: uv.lock is intentionally NOT ignored — commit it for reproducible installs.
+
+# --- Test / lint / type-check caches ---------------------------------------
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pytype/
+.dmypy.json
+dmypy.json
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+
+# --- Editors / IDEs --------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- OS noise --------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Logs / scratch --------------------------------------------------------
+*.log
+# Audit trail of the changes the server made in the tenant. The setup creates
+# the directory; its contents are runtime data, never source.
+audit/
+
+# --- Local to the clone (not part of the project) --------------------------
+# Configuration and notes belonging to whoever maintains a given clone.
+.claude/
+CLAUDE.md
+dev/
+
+# --- OpenCode local artefacts ----------------------------------------------
+# The agents, plugins and opencode.json ARE source; what the runtime installs
+# next to them is not.
+.opencode/guard-status.json
+.opencode/node_modules/
+.opencode/package-lock.json
+.opencode/bun.lock
+
+# --- Generated reports -----------------------------------------------------
+# Every rendered report holds real tenant data. Matched by extension rather than
+# by folder name, so a report written to any subdirectory is still ignored. The
+# Jinja template is the only HTML here that IS source.
+docs/reports/**/*.html
+!docs/reports/templates/*.html
+
+# --- Harness runtime state -------------------------------------------------
+# Written by the agents from live tool responses, so it holds real tenant data
+# (alert IDs, hostnames, internal IPs, IOCs) and must not be versioned. The
+# canonical empty shape lives in docs/references/seed_*, which IS tracked: setup
+# copies it, and SOC.md resets to it when a session closes.
+workbench_list.json
+context/alert_context.json
+memory/history.json
+progress/current.md
