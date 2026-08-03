@@ -50,8 +50,12 @@ jobs:
       # A bare `uvx ruff` resolves to the latest release, so a version enabling a
       # new rule turns this job red with no change to the repository. Bump this
       # together with the `ruff` entry in `mcp_server/uv.lock`.
+      #
+      # Which rules run is no longer the version's choice: `ruff.toml` at the root
+      # declares the selection for `scripts/`, so an upgrade changes formatting at
+      # most, never the set of enforced rules.
       - name: Lint (ruff)
-        run: uvx ruff@0.15.17 check scripts && uvx ruff@0.15.17 format --check scripts
+        run: uvx ruff@0.16.1 check scripts && uvx ruff@0.16.1 format --check scripts
 
       # The interpreter is not chosen here: the root `uv.toml` pins uv to a managed
       # Python and `.python-version` pins the version, so CI runs the same one a

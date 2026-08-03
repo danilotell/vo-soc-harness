@@ -47,6 +47,14 @@ line-length = 100
 target-version = "py311"
 src = ["src", "tests"]
 
+[tool.ruff.format]
+# Markdown became formattable in ruff 0.16 (preview-only in 0.15), which pulls
+# `src/tools/README.md` into scope. Its code blocks are illustrative fragments, not
+# modules: the formatter reads two snippets separated by a `# tool.py` comment as
+# one file and inserts blank lines between them, and it collapses comment alignment
+# that was deliberate. The guide is prose; keep it out.
+exclude = ["*.md"]
+
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM"]
 

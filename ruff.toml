@@ -1,0 +1,28 @@
+# Lint rules for `scripts/`, the harness half of the repo.
+#
+# This file exists because the alternative is ruff's built-in defaults, and those
+# move between releases: 0.16 started reporting rules 0.15 did not (ISC, PL, RUF),
+# which turned CI red with no change to the repository. Declaring the selection is
+# what makes a ruff upgrade a decision instead of a surprise.
+#
+# The same rules and line length as `mcp_server/pyproject.toml`, so both halves are
+# held to one standard. Ruff resolves the nearest config walking up from each file,
+# so anything under `mcp_server/` still uses that project's own settings and this
+# file governs only the root.
+#
+# Note this is a lint config, not a Python project: the harness deliberately has no
+# `pyproject.toml`, and its scripts run through `uv run --no-project`.
+
+line-length = 100
+target-version = "py311"
+
+[lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[format]
+# Markdown became formattable in ruff 0.16 (it was preview-only in 0.15), which
+# pulls hand-written guides into the formatter's scope. The code blocks in those
+# guides are illustrative fragments, not modules: the formatter reads two snippets
+# separated by a `# tool.py` comment as one file and inserts blank lines between
+# them, and it collapses comment alignment that was deliberate. Keep prose out.
+exclude = ["*.md"]

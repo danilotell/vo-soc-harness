@@ -293,17 +293,15 @@ def check_executed_are_authorized(data: Any) -> list[str]:
     authorization = responses.get("authorization")
     if not isinstance(authorization, dict):
         return [
-            "responses.authorization: absent while responses were executed — the "
-            "orchestrator records the human approval before delegating to Tier3"
+            (
+                "responses.authorization: absent while responses were executed — the "
+                "orchestrator records the human approval before delegating to Tier3"
+            )
         ]
     if authorization.get("granted") is not True:
-        return [
-            "responses.authorization.granted: not true while responses were executed"
-        ]
+        return ["responses.authorization.granted: not true while responses were executed"]
 
-    approved = json.dumps(
-        authorization.get("approved_actions") or [], ensure_ascii=False
-    ).lower()
+    approved = json.dumps(authorization.get("approved_actions") or [], ensure_ascii=False).lower()
     problems = []
     for index, item in enumerate(executed):
         if not isinstance(item, dict):
@@ -458,9 +456,7 @@ def check_state(kind: str, data: Any) -> list[str]:
         return problems + validate_history(data, _history_entry_template())
     if kind == "workbench":
         return problems + validate_workbench(data)
-    raise SystemExit(
-        f"Unknown state kind: {kind!r}. Expected one of {sorted(STATE_FILES)}."
-    )
+    raise SystemExit(f"Unknown state kind: {kind!r}. Expected one of {sorted(STATE_FILES)}.")
 
 
 def run_repo_validation() -> int:
@@ -544,16 +540,14 @@ def run_self_test() -> int:
     assert validate_alert_context({"triage": template["triage"]}, templates) == []
 
     missing = validate_alert_context({"triage": {"id": "WB-1"}}, templates)
-    assert missing == [
-        "alert_context.triage.triage_summary: missing (required by the template)"
-    ], missing
+    assert missing == ["alert_context.triage.triage_summary: missing (required by the template)"], (
+        missing
+    )
 
     # An undeclared field is accepted: the agents are allowed to record what they
     # observed, and the report renders it. It is reported separately, not refused.
     added = {"triage": {**template["triage"], "invented": 1}}
-    assert validate_alert_context(added, templates) == [], validate_alert_context(
-        added, templates
-    )
+    assert validate_alert_context(added, templates) == [], validate_alert_context(added, templates)
     notes = extra_keys(added["triage"], templates["triage"], "alert_context.triage")
     assert notes == ["alert_context.triage.invented"], notes
 
@@ -582,9 +576,7 @@ def run_self_test() -> int:
         "model: missing"
     )
     # A bare array loses the envelope fields, so it must be rejected.
-    assert validate_workbench([{"id": "WB-1"}])[0].startswith(
-        "workbench_list: expected an object"
-    )
+    assert validate_workbench([{"id": "WB-1"}])[0].startswith("workbench_list: expected an object")
     assert validate_workbench({"alerts": []}) == [
         "workbench_list.last_updated: missing (see docs/references/seed_workbench_list.json)",
         "workbench_list.range_days: missing (see docs/references/seed_workbench_list.json)",
@@ -610,15 +602,8 @@ def run_self_test() -> int:
         "...",
     }
 
-    assert (
-        check_copied_placeholders(
-            {"triage": {"id": "WB-1-20260731-00001"}}, placeholders
-        )
-        == []
-    )
-    copied = check_copied_placeholders(
-        {"triage": {"id": "WB-9002-20220906-00025"}}, placeholders
-    )
+    assert check_copied_placeholders({"triage": {"id": "WB-1-20260731-00001"}}, placeholders) == []
+    copied = check_copied_placeholders({"triage": {"id": "WB-9002-20220906-00025"}}, placeholders)
     assert len(copied) == 1 and "template example value" in copied[0], copied
     # Also caught inside a longer string (a report path, a note...).
     nested = check_copied_placeholders(
@@ -630,34 +615,23 @@ def run_self_test() -> int:
     ]
     # A real summary that merely contains an ellipsis is not a placeholder.
     assert (
-        check_copied_placeholders(
-            {"a": {"summary": "se detecto... y se contuvo"}}, {"..."}
-        )
-        == []
+        check_copied_placeholders({"a": {"summary": "se detecto... y se contuvo"}}, {"..."}) == []
     )
     # Declared gaps are always acceptable.
-    assert (
-        check_copied_placeholders({"a": {"cve": "NOT_COLLECTED"}}, placeholders) == []
-    )
+    assert check_copied_placeholders({"a": {"cve": "NOT_COLLECTED"}}, placeholders) == []
 
     # A detection-rule GUID from the sample payload is a real Vision One identifier
     # that a live alert can carry, so it must not be treated as a placeholder.
     derived = placeholder_values()
-    assert "b23bc903-ecfb-4052-90a0-167adb93abb7" not in derived, (
-        "real rule GUIDs must pass"
-    )
-    assert "00000000-0000-0000-0000-000000000000" in derived, (
-        "the zeroed GUID is a placeholder"
-    )
+    assert "b23bc903-ecfb-4052-90a0-167adb93abb7" not in derived, "real rule GUIDs must pass"
+    assert "00000000-0000-0000-0000-000000000000" in derived, "the zeroed GUID is a placeholder"
     assert "WB-9002-20220906-00025" in derived
 
     # A digest nested one level deep must be named as such, not reported as every
     # field being absent.
     entry_template = _history_entry_template()
     assert "alert_id" in entry_template, "the template must describe ONE entry"
-    wrapped = validate_history(
-        [{"history_entry": {"alert_id": "WB-1"}}], entry_template
-    )
+    wrapped = validate_history([{"history_entry": {"alert_id": "WB-1"}}], entry_template)
     assert len(wrapped) == 1, wrapped
     assert "wrapped in an extra 'history_entry' object" in wrapped[0], wrapped[0]
     # A real entry missing fields still reports them one by one.
@@ -667,9 +641,7 @@ def run_self_test() -> int:
         "triage": {"indicators": [{"value": "HOST-9"}]},
         "responses": {
             "responses_summary": {
-                "executed_responses": [
-                    {"action": "isolate_endpoint", "object": "HOST-9"}
-                ]
+                "executed_responses": [{"action": "isolate_endpoint", "object": "HOST-9"}]
             }
         },
     }
@@ -697,11 +669,7 @@ def run_self_test() -> int:
         }
     }
     assert len(check_executed_are_authorized(unapproved)) == 1
-    no_auth = {
-        "responses": {
-            "responses_summary": {"executed_responses": [{"object": "HOST-9"}]}
-        }
-    }
+    no_auth = {"responses": {"responses_summary": {"executed_responses": [{"object": "HOST-9"}]}}}
     assert len(check_executed_are_authorized(no_auth)) == 1
     refused = {
         "responses": {
@@ -728,9 +696,7 @@ def run_self_test() -> int:
     direct = {
         "responses": {
             "responses_summary": {
-                "executed_responses": [
-                    {"action": "isolate_endpoint", "object": "DESKTOP-7"}
-                ]
+                "executed_responses": [{"action": "isolate_endpoint", "object": "DESKTOP-7"}]
             }
         }
     }

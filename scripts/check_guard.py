@@ -59,19 +59,17 @@ EXPECTED_VERSION = 1
 def check_probe() -> list[str]:
     """Run the hook probe. Failure to run it counts as failure, never as a pass."""
     if not PLUGIN.exists():
-        return [
-            f"{PLUGIN.relative_to(ROOT).as_posix()} does not exist: there is no guard to load."
-        ]
+        return [f"{PLUGIN.relative_to(ROOT).as_posix()} does not exist: there is no guard to load."]
     if not PROBE.exists():
-        return [
-            f"{PROBE.relative_to(ROOT).as_posix()} is missing: the guard cannot be verified."
-        ]
+        return [f"{PROBE.relative_to(ROOT).as_posix()} is missing: the guard cannot be verified."]
     node = shutil.which("node")
     if node is None:
         return ["node is not on PATH, so the guard's behaviour cannot be verified."]
 
-    result = subprocess.run(  # noqa: S603 - fixed argv, no shell
-        [node, str(PROBE)], cwd=ROOT, capture_output=True, text=True
+    # Fixed argv and no shell. `check=False` on purpose: a failing probe is the
+    # answer this function reports, not an exception to propagate.
+    result = subprocess.run(
+        [node, str(PROBE)], cwd=ROOT, capture_output=True, text=True, check=False
     )
     if result.returncode == 0:
         return []
@@ -111,8 +109,10 @@ def check_heartbeat() -> list[str]:
     hint = load_hint()
     if not STATUS_FILE.exists():
         return [
-            f"{STATUS_FILE.relative_to(ROOT).as_posix()} does not exist: "
-            "OpenCode has not loaded the guard in this session.",
+            (
+                f"{STATUS_FILE.relative_to(ROOT).as_posix()} does not exist: "
+                "OpenCode has not loaded the guard in this session."
+            ),
             f"    {hint}",
         ]
 

@@ -25,7 +25,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -192,9 +192,7 @@ def cell_text(value: Any) -> str:
     return as_text(value)
 
 
-def flatten_pairs(
-    node: dict[str, Any], mapping: dict[str, str]
-) -> list[dict[str, str]]:
+def flatten_pairs(node: dict[str, Any], mapping: dict[str, str]) -> list[dict[str, str]]:
     """A dict as ordered label/text pairs, serialising anything nested."""
     pairs = []
     for key in order_keys(node, mapping):
@@ -259,9 +257,7 @@ def order_keys(node: dict[str, Any], mapping: dict[str, str]) -> list[str]:
     return declared + rest
 
 
-def blocks_for(
-    node: Any, skip: set[str], mapping: dict[str, str]
-) -> list[dict[str, Any]]:
+def blocks_for(node: Any, skip: set[str], mapping: dict[str, str]) -> list[dict[str, Any]]:
     if not isinstance(node, dict):
         return []
     found = []
@@ -283,11 +279,7 @@ def entity_view(entity: Any, mapping: dict[str, str]) -> dict[str, Any]:
     if isinstance(value, dict):
         title = as_text(value.get("name") or value.get("guid") or MISSING)
         ips = value.get("ips")
-        detail = (
-            ", ".join(as_text(ip) for ip in ips)
-            if isinstance(ips, list) and ips
-            else ""
-        )
+        detail = ", ".join(as_text(ip) for ip in ips) if isinstance(ips, list) and ips else ""
         # Only what the card already shows is dropped, and it is matched by key:
         # the labels are translated, so matching those printed the name and the IPs
         # a second time, the IPs as raw JSON. A `guid` that did not become the
@@ -295,9 +287,7 @@ def entity_view(entity: Any, mapping: dict[str, str]) -> dict[str, Any]:
         shown = {"name"} if value.get("name") else {"guid"}
         if detail:
             shown.add("ips")
-        extras = flatten_pairs(
-            {k: v for k, v in value.items() if k not in shown}, mapping
-        )
+        extras = flatten_pairs({k: v for k, v in value.items() if k not in shown}, mapping)
     else:
         title = as_text(value if value is not None else MISSING)
         detail = ""
@@ -325,11 +315,7 @@ def timeline_step(
     node = node if isinstance(node, dict) else {}
     summary = node.get(summary_key)
     summary = summary if isinstance(summary, dict) else {}
-    consumed = (
-        CONSUMED[section]
-        | {date_key, summary_key}
-        | ({status_key} if status_key else set())
-    )
+    consumed = CONSUMED[section] | {date_key, summary_key} | ({status_key} if status_key else set())
     body = blocks_for(summary, {"summary", "executed_responses"}, mapping)
     # Scalars fit the one-line facts row; the analysis content (IOC verdicts,
     # MITRE techniques, suggested responses) needs the room below the summary.
@@ -352,46 +338,30 @@ def build_view(context: Any, *, generated_at: str) -> dict[str, Any]:
     mapping = labels()
     context = context if isinstance(context, dict) else {}
     triage = context.get("triage") if isinstance(context.get("triage"), dict) else {}
-    analysis = (
-        context.get("analysis") if isinstance(context.get("analysis"), dict) else {}
-    )
-    responses = (
-        context.get("responses") if isinstance(context.get("responses"), dict) else {}
-    )
+    analysis = context.get("analysis") if isinstance(context.get("analysis"), dict) else {}
+    responses = context.get("responses") if isinstance(context.get("responses"), dict) else {}
 
-    impact = (
-        triage.get("impactScope") if isinstance(triage.get("impactScope"), dict) else {}
-    )
+    impact = triage.get("impactScope") if isinstance(triage.get("impactScope"), dict) else {}
     counts = [
         {"label": label_for(key, mapping), "value": as_text(impact[key])}
         for key in order_keys(impact, mapping)
         if key.endswith("Count")
     ]
-    entities = (
-        impact.get("entities") if isinstance(impact.get("entities"), list) else []
-    )
+    entities = impact.get("entities") if isinstance(impact.get("entities"), list) else []
 
-    indicators = (
-        triage.get("indicators") if isinstance(triage.get("indicators"), list) else []
-    )
+    indicators = triage.get("indicators") if isinstance(triage.get("indicators"), list) else []
     indicator_rows = [
         {
             "type": as_text(item.get("type") or MISSING),
             "field": as_text(item.get("field") or MISSING),
-            "value": as_text(
-                item.get("value") if item.get("value") is not None else MISSING
-            ),
+            "value": as_text(item.get("value") if item.get("value") is not None else MISSING),
         }
         for item in indicators
         if isinstance(item, dict)
     ]
 
     mitre = []
-    rules = (
-        triage.get("matchedRules")
-        if isinstance(triage.get("matchedRules"), list)
-        else []
-    )
+    rules = triage.get("matchedRules") if isinstance(triage.get("matchedRules"), list) else []
     for rule in rules:
         if not isinstance(rule, dict):
             continue
@@ -403,9 +373,7 @@ def build_view(context: Any, *, generated_at: str) -> dict[str, Any]:
                     {
                         "name": as_text(item.get("name") or MISSING),
                         "techniques": [
-                            as_text(t)
-                            for t in (item.get("mitreTechniqueIds") or [])
-                            if t
+                            as_text(t) for t in (item.get("mitreTechniqueIds") or []) if t
                         ],
                         "matched": as_text(item.get("matchedDateTime") or MISSING),
                     }
@@ -417,9 +385,7 @@ def build_view(context: Any, *, generated_at: str) -> dict[str, Any]:
 
     executed = []
     summary_node = responses.get("responses_summary")
-    if isinstance(summary_node, dict) and isinstance(
-        summary_node.get("executed_responses"), list
-    ):
+    if isinstance(summary_node, dict) and isinstance(summary_node.get("executed_responses"), list):
         for item in summary_node["executed_responses"]:
             if not isinstance(item, dict):
                 continue
@@ -448,16 +414,10 @@ def build_view(context: Any, *, generated_at: str) -> dict[str, Any]:
     auth = responses.get("authorization")
     auth = auth if isinstance(auth, dict) else {}
     approved = auth.get("approved_actions")
-    approved = [
-        a
-        for a in (approved if isinstance(approved, list) else [])
-        if isinstance(a, dict)
-    ]
+    approved = [a for a in (approved if isinstance(approved, list) else []) if isinstance(a, dict)]
     authorization = {
         "present": bool(auth),
-        "facts": flatten_pairs(
-            {k: v for k, v in auth.items() if k != "approved_actions"}, mapping
-        ),
+        "facts": flatten_pairs({k: v for k, v in auth.items() if k != "approved_actions"}, mapping),
         "approved": table_of(approved, mapping) if approved else None,
     }
 
@@ -471,14 +431,10 @@ def build_view(context: Any, *, generated_at: str) -> dict[str, Any]:
             "status": as_text(triage.get("status") or MISSING),
             "model": as_text(triage.get("model") or MISSING),
             "description": as_text(triage.get("description") or MISSING),
-            "score": as_text(
-                triage.get("score") if triage.get("score") is not None else MISSING
-            ),
+            "score": as_text(triage.get("score") if triage.get("score") is not None else MISSING),
             "incident_id": as_text(triage.get("incidentId") or MISSING),
             "created": as_text(triage.get("createdDateTime") or MISSING),
-            "workbench_link": link
-            if isinstance(link, str) and link.startswith("http")
-            else "",
+            "workbench_link": link if isinstance(link, str) and link.startswith("http") else "",
             "generated_at": generated_at,
         },
         "impact": {
@@ -539,9 +495,7 @@ def build_view(context: Any, *, generated_at: str) -> dict[str, Any]:
             single = block(name, context[name], mapping)
             remaining = [single] if single else []
         if remaining:
-            view["extras"].append(
-                {"title": label_for(name, mapping), "blocks": remaining}
-            )
+            view["extras"].append({"title": label_for(name, mapping), "blocks": remaining})
 
     return view
 
@@ -613,9 +567,7 @@ def run_self_test() -> int:
 
     # An empty context must still produce a report, not an exception.
     empty = build_view({}, generated_at="X")
-    expect(
-        empty["meta"]["alert_id"] == MISSING, "an empty context should render markers"
-    )
+    expect(empty["meta"]["alert_id"] == MISSING, "an empty context should render markers")
     expect(len(empty["timeline"]) == 3, "the timeline must always have its three tiers")
 
     # Junk in place of a section must not crash the renderer.
@@ -635,9 +587,7 @@ def run_self_test() -> int:
     )
     # And it must survive all the way into the document, not only the view model.
     rendered = render(DEFAULT_TEMPLATE, view)
-    expect(
-        "undeclared field value" in rendered, "an unknown field must reach the report"
-    )
+    expect("undeclared field value" in rendered, "an unknown field must reach the report")
     expect("Undeclared field" in rendered, "its label should be humanised")
 
     # Ordering is what makes two reports comparable.
@@ -658,9 +608,7 @@ def run_self_test() -> int:
 
     # Values the agents use to declare a gap must survive verbatim.
     marked = build_view({"triage": {"id": "NOT_COLLECTED"}}, generated_at="X")
-    expect(
-        marked["meta"]["alert_id"] == "NOT_COLLECTED", "markers must not be rewritten"
-    )
+    expect(marked["meta"]["alert_id"] == "NOT_COLLECTED", "markers must not be rewritten")
 
     if problems:
         print(f"{len(problems)} problem(s) found:", file=sys.stderr)
@@ -678,12 +626,8 @@ def main() -> int:
     parser.add_argument(
         "--out", type=Path, help="output file (default: docs/reports/outputs/<id>.html)"
     )
-    parser.add_argument(
-        "--check-template", type=Path, help="dry-render a template and exit"
-    )
-    parser.add_argument(
-        "--self-test", action="store_true", help="check the renderer itself"
-    )
+    parser.add_argument("--check-template", type=Path, help="dry-render a template and exit")
+    parser.add_argument("--self-test", action="store_true", help="check the renderer itself")
     args = parser.parse_args()
 
     if args.self_test:
@@ -692,7 +636,7 @@ def main() -> int:
         return run_check_template(args.check_template)
 
     context = load_json(args.context)
-    generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    generated_at = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     view = build_view(context, generated_at=generated_at)
 
     alert_id = view["meta"]["alert_id"]
