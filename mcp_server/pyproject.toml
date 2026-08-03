@@ -8,7 +8,7 @@ dependencies = [
     "fastmcp>=3.4,<4",
     "httpx[http2]>=0.27",
     "pydantic>=2.7",
-    "pydantic-settings>=2.3",
+    "pydantic-settings>=2.14.2",
     "python-dotenv>=1.0",
 ]
 
