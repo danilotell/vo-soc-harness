@@ -5,8 +5,8 @@ description = "Custom Vision One MCP Server"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "fastmcp>=3.4,<4",
-    "httpx[http2]>=0.27",
+    "fastmcp>=3.4.5,<4",
+    "httpx[http2]>=0.28.1",
     "pydantic>=2.7",
     "pydantic-settings>=2.14.2",
     "python-dotenv>=1.0",
@@ -30,10 +30,10 @@ python-downloads = "automatic"
 # Dev-only tooling (installed with `uv sync --group dev`).
 [dependency-groups]
 dev = [
-    "pytest>=8",
+    "pytest>=9.1.1",
     "pytest-asyncio>=0.23",
-    "ruff>=0.5",
-    "mypy>=1.10",
+    "ruff>=0.16.1",
+    "mypy>=2.3.0",
 ]
 
 [tool.pytest.ini_options]
