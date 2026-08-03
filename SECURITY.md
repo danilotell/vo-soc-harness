@@ -11,11 +11,16 @@ No hay releases. El único código soportado es la rama `main`; los reportes se 
 
 ## Cómo reportar
 
-Los reportes se envían como issue: <https://github.com/danilotell/vo-soc-harness/issues>
+**Para una vulnerabilidad, usar el canal privado:**
+<https://github.com/danilotell/vo-soc-harness/security/advisories/new>
 
-Los issues son públicos: abrir uno divulga el hallazgo en ese momento, sin período de embargo. Un
-reporte que no convenga publicar en detalle puede abrirse indicando únicamente su existencia y
-acordando allí un canal alternativo.
+Es un aviso de seguridad en borrador, visible solo para quien lo reporta y para el autor. Permite
+discutir el hallazgo y coordinar la corrección antes de que sea público, y publicarlo después con
+crédito al reportante.
+
+Para un bug que no sea una vulnerabilidad, el canal es un issue:
+<https://github.com/danilotell/vo-soc-harness/issues>. Los issues son públicos, así que abrir uno
+divulga el contenido en ese momento, sin período de embargo.
 
 ### Contenido del reporte
 

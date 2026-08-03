@@ -1,0 +1,21 @@
+version: 2
+
+updates:
+  # The server's lock file. Grouped into one PR per week: a security advisory
+  # still arrives on its own through Dependabot alerts, so the routine bumps do
+  # not need to be one PR each.
+  - package-ecosystem: uv
+    directory: /mcp_server
+    schedule:
+      interval: weekly
+    groups:
+      mcp-server:
+        patterns: ["*"]
+
+  # CI pins its actions to mutable tags (`checkout@v5`), which resolve to
+  # whatever that tag points at today. Keeping them updated here is what makes a
+  # later move to SHA pinning maintainable instead of frozen.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
