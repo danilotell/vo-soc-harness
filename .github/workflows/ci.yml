@@ -75,7 +75,7 @@ jobs:
 
       # The guard is loaded by OpenCode at runtime, so a mistake in it surfaces as
       # a blocked tool in the middle of an alert. This drives its hooks directly.
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
 
