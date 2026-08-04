@@ -258,7 +258,9 @@ node scripts/probe_harness_guard.mjs                    # hooks del plugin (Guar
 ```
 
 Lo mismo corre en CI (`.github/workflows/ci.yml`) en dos jobs: `check` (servidor MCP) y `harness`
-(gate, estado, plantillas, renderizador y plugin).
+(gate, estado, plantillas, renderizador y plugin). Un segundo workflow,
+`.github/workflows/secrets.yml`, pasa `gitleaks` sobre los commits de cada push y de cada pull
+request, para los secretos genéricos que el escaneo de GitHub no cubre.
 
 `probe_harness_guard.mjs` existe porque el plugin es la única pieza que OpenCode carga en runtime: un
 error ahí no aparece como un test roto sino como una tool bloqueada en medio de una alerta. Llama a
